@@ -10,7 +10,8 @@
     "wp-content/plugins/lms-lab-browser-login": "./plugins/lms-lab-browser-login",
     "wp-content/plugins/lms-lab-sync-reconciliation": "./plugins/lms-lab-sync-reconciliation",
     "wp-content/plugins/lms-lab-qa95": "./plugins/lms-lab-qa95",
-    "wp-content/lms-lab-tests": "./tests"
+    "wp-content/lms-lab-tests": "./tests",
+    "wp-content/plugins/lms-lab-talentlms-live-readiness": "./plugins/lms-lab-talentlms-live-readiness"
   },
   "config": {
     "WP_DEBUG": true,
