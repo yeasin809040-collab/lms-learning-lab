@@ -31,6 +31,8 @@ jobs:
       - name: Run 95 milestone offline PHP behavioral regressions
         run: |
           php tests/test-95-reconciliation-offline.php
+      - name: Verify public demo credentials are disabled by default
+        run: php tests/test-95-public-demo-optin-offline.php
       - name: Validate disabled-by-default TalentLMS V2 adapter contract
         run: |
           php tests/test-100-talentlms-adapter-offline.php
