@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/wp-env.json",
+  "mappings": {
+    "wp-content/plugins/woocommerce-lms-bridge": "./plugins/woocommerce-lms-bridge",
+    "wp-content/plugins/lms-lab-qa-runner": "./plugins/lms-lab-qa-runner",
+    "wp-content/plugins/lms-lab-course-access": "./plugins/lms-lab-course-access",
+    "wp-content/plugins/lms-lab-access-qa": "./plugins/lms-lab-access-qa",
+    "wp-content/plugins/lms-lab-talentlms-sim": "./plugins/lms-lab-talentlms-sim",
+    "wp-content/plugins/lms-lab-api-qa85": "./plugins/lms-lab-api-qa85",
+    "wp-content/plugins/lms-lab-browser-login": "./plugins/lms-lab-browser-login",
+    "wp-content/plugins/lms-lab-sync-reconciliation": "./plugins/lms-lab-sync-reconciliation",
+    "wp-content/plugins/lms-lab-qa95": "./plugins/lms-lab-qa95",
+    "wp-content/lms-lab-tests": "./tests"
+  },
+  "config": {
+    "WP_DEBUG": true,
+    "WP_DEBUG_LOG": true
+  },
+  "port": 8888
+}
