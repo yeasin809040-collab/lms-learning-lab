@@ -7,6 +7,7 @@ on:
     paths:
       - "plugins/**/*.php"
       - "tests/run-wp-env-integration.php"
+      - "tests/test-100-wordpress-live-guard.php"
       - "tests/test-browser-login-selenium.py"
       - ".wp-env.json"
       - ".github/workflows/wordpress-e2e.yml"
@@ -53,6 +54,7 @@ jobs:
           wp-env run cli wp plugin activate lms-lab-browser-login
           wp-env run cli wp plugin activate lms-lab-sync-reconciliation
           wp-env run cli wp plugin activate lms-lab-qa95
+          wp-env run cli wp plugin activate lms-lab-talentlms-live-readiness
           wp-env run cli wp plugin list --status=active
 
       - name: Use pretty WordPress permalinks
@@ -60,6 +62,9 @@ jobs:
 
       - name: Execute all four REAL WordPress integration QA suites
         run: wp-env run cli wp eval-file wp-content/lms-lab-tests/run-wp-env-integration.php
+
+      - name: Verify TalentLMS real HTTP disabled without approved tenant
+        run: wp-env run cli wp eval-file wp-content/lms-lab-tests/test-100-wordpress-live-guard.php
 
       - name: Install Selenium in isolated Python environment
         run: |
