@@ -44,3 +44,14 @@ It installs WooCommerce and the test plugins in a new disposable environment, th
 The synthetic-only code, simulated key, fixed course ID and option-backed queue are **not production-ready**. They must not be used with real customer data or real payments. Live TalentLMS API testing requires a paid account with authorized API access, which has not been connected.
 
 Never commit real API keys, passwords or customer information to this public repository. The demonstration password is deliberately public and synthetic, for **disposable CI/browser environments only**; never reuse it elsewhere.
+
+## Final 5%: gated live TalentLMS test — **in progress**
+
+**95% training milestone remains verified; 100% is NOT claimed.**
+
+- [TalentLMS V2 real API readiness adapter](./plugins/lms-lab-talentlms-live-readiness/lms-lab-talentlms-live-readiness.php) is **disabled by default**, limited to private server-side credentials, approved single test user/course IDs, HTTPS and explicit per-action write consent.
+- [59 PHP contract checks passed, 0 failed](https://github.com/yeasin809040-collab/lms-learning-lab/actions/runs/40906982352), testing safe requests and errors with **no real API calls**.
+- [Real WordPress guard test](./tests/test-100-wordpress-live-guard.php) is integrated into the WordPress/MySQL/Chrome CI. Its latest results must be checked independently.
+- [**Readiness, owner authorization and safe real test procedure**](./docs/TALENTLMS-LIVE-TEST-RUNBOOK.md).
+
+**No authorized paid TalentLMS API tenant is currently connected.** Neither real enrollment nor unenrollment has been observed. TalentLMS Free/Trial plans do not offer API access. Do not paste API secrets into chat, GitHub or WordPress posts, and do not enable production writes without exact test account permission.
