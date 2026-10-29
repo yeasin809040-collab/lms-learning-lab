@@ -69,11 +69,35 @@ try:
           USER in driver.find_element(By.ID,"lls95-user").text)
     check("WordPress auth cookie exists",any("logged_in" in c["name"] for c in driver.get_cookies()))
 
-    driver.get(LESSON)
-    check("Logged-in enrolled student sees private lesson", MARKER in driver.page_source
-          and 'data-lls-access="granted"' in driver.page_source)
+    # Follow the canonical WordPress permalink: wp-env often redirects login to
+    # localhost:8888 even when the initial test URL is 127.0.0.1:8888.
+    # Cookies are scoped to host, so switching back to the initial literal
+    # address can silently turn an authenticated request into a guest request.
+    canonical_portal_url = driver.current_url
+    canonical_lesson_url = driver.find_element(
+        By.ID, "lls95-lesson-link"
+    ).get_attribute("href")
+    from urllib.parse import urlsplit
+    portal_origin = urlsplit(canonical_portal_url)
+    lesson_origin = urlsplit(canonical_lesson_url)
+    check("WordPress lesson URL uses authenticated browser origin",
+          (portal_origin.scheme, portal_origin.netloc) ==
+          (lesson_origin.scheme, lesson_origin.netloc))
+    print("BROWSER DIAGNOSTIC: initial_origin=" + urlsplit(BASE).netloc
+          + " authenticated_origin=" + portal_origin.netloc, flush=True)
 
-    driver.get(PORTAL)
+    driver.get(canonical_lesson_url)
+    if MARKER not in driver.page_source or 'data-lls-access="granted"' not in driver.page_source:
+        print("LESSON DIAGNOSTIC: url=" + driver.current_url, flush=True)
+        print("LESSON DIAGNOSTIC: title=" + driver.title, flush=True)
+        print("LESSON DIAGNOSTIC: is_denied=" +
+              str('data-lls-access="denied"' in driver.page_source), flush=True)
+        print("LESSON DIAGNOSTIC: wordpress_logged_in_cookie_present=" +
+              str(any("logged_in" in c["name"] for c in driver.get_cookies())), flush=True)
+    check("Logged-in enrolled student sees private lesson",
+          MARKER in driver.page_source and 'data-lls-access="granted"' in driver.page_source)
+
+    driver.get(canonical_portal_url)
     logout=wait_css("#lls95-logout-link")
     logout.click()
     portal=wait_css(".lls95-login-lab")
@@ -82,12 +106,12 @@ try:
     check("WordPress session has no logged-in auth cookie",
           not any("logged_in" in c["name"] for c in driver.get_cookies()))
 
-    driver.get(LESSON)
+    driver.get(canonical_lesson_url)
     check("After logout the protected lesson becomes inaccessible",
           MARKER not in driver.page_source and 'data-lls-access="denied"' in driver.page_source)
 
     # Invalid password must not silently authenticate the user.
-    driver.get(PORTAL)
+    driver.get(canonical_portal_url)
     wait_css("#user_login").send_keys(USER)
     wait_css("#user_pass").send_keys("INVALID-LAB-PASSWORD-95")
     wait_css("#wp-submit").click()
@@ -96,14 +120,14 @@ try:
           not any("logged_in" in c["name"] for c in driver.get_cookies()))
 
     # Fresh successful re-authentication after failed attempt.
-    driver.get(PORTAL)
+    driver.get(canonical_portal_url)
     wait_css("#user_login").send_keys(USER)
     wait_css("#user_pass").send_keys(PASSWORD)
     wait_css("#wp-submit").click()
     portal=wait_css(".lls95-login-lab")
     check("Student can sign in again after logging out",
           portal.get_attribute("data-login-state")=="enrolled")
-    driver.get(LESSON)
+    driver.get(canonical_lesson_url)
     check("Private lesson accessible again after second login",
           MARKER in driver.page_source)
 
