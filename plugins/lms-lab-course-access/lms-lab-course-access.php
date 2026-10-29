@@ -2,7 +2,7 @@
 /**
  * Plugin Name: LMS Learning Lab — Student Course Access (Test Mode)
  * Description: Test-only WordPress course entitlement: synthetic WooCommerce orders provision example.com students; completed orders grant access and refunded orders revoke it. NO TalentLMS API calls.
- * Version: 0.1.1
+ * Version: 0.1.2
  * Requires Plugins: woocommerce
  */
 if (!defined('ABSPATH')) { exit; }
@@ -14,6 +14,9 @@ add_action('woocommerce_order_status_completed', 'lls_lab_grant_order', 30, 1);
 // WooCommerce normally leaves paid virtual-only, non-downloadable orders Processing.
 add_action('woocommerce_payment_complete', 'lls_lab_grant_order', 30, 1);
 add_action('woocommerce_order_status_refunded', 'lls_lab_revoke_order', 30, 1);
+// Stop access on terminal payment/order failures, not just a full refund.
+add_action('woocommerce_order_status_cancelled', 'lls_lab_revoke_order', 30, 1);
+add_action('woocommerce_order_status_failed', 'lls_lab_revoke_order', 30, 1);
 add_action('init', function () {
     add_shortcode('lls_protected_course', 'lls_lab_protected_course');
 });
@@ -104,7 +107,7 @@ function lls_lab_grant_order($order_id) {
 function lls_lab_revoke_order($order_id) {
     if (!function_exists('wc_get_order')) { return false; }
     $order = wc_get_order($order_id);
-    if (!lls_lab_eligible_order($order) || !$order->has_status('refunded')) { return false; }
+    if (!lls_lab_eligible_order($order) || !$order->has_status(array('refunded','cancelled','failed'))) { return false; }
     $id = lls_lab_get_student($order, false);
     if (!$id) { return false; }
     $grants = get_user_meta($id, LLS_LAB_GRANTS_KEY, true);
