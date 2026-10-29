@@ -18,6 +18,10 @@
       }
     },
     {
+      "step": "mkdir",
+      "path": "/wordpress/wp-content/plugins/woocommerce-lms-bridge"
+    },
+    {
       "step": "writeFile",
       "path": "/wordpress/wp-content/plugins/woocommerce-lms-bridge/woocommerce-lms-bridge.php",
       "data": "<?php\n/**\n * Plugin Name: Learning Lab — WooCommerce LMS Bridge (Audit Mode)\n * Description: Records allowlisted course order lifecycle events; no live LMS calls or access changes.\n * Version: 0.3.0\n * Requires Plugins: woocommerce\n */\nif (!defined('ABSPATH')) exit;\nadd_action('woocommerce_order_status_completed', 'llb_order_completed', 20, 1);\nadd_action('woocommerce_order_status_refunded', 'llb_order_refunded', 20, 1);\nadd_action('woocommerce_order_refunded', 'llb_partial_refund', 20, 2);\nfunction llb_order_completed($order_id) { return llb_capture($order_id, 'paid'); }\nfunction llb_order_refunded($order_id) { return llb_capture($order_id, 'refunded'); }\nfunction llb_partial_refund($order_id, $refund_id) {\n    if ((int)$refund_id <= 0) return false;\n    return llb_capture($order_id, 'refund_review', (int)$refund_id);\n}\nfunction llb_capture($order_id, $event, $refund_id = 0) {\n    if (!function_exists('wc_get_order') || !in_array($event, array('paid','refunded','refund_review'), true)) return false;\n    $order = wc_get_order($order_id);\n    if (!$order || !method_exists($order, 'get_items')) return false;\n    if ($event === 'paid' && (!method_exists($order, 'has_status') || !$order->has_status('completed'))) return false;\n    if ($event === 'refunded' && (!method_exists($order, 'has_status') || !$order->has_status('refunded'))) return false;\n    if ($event === 'refund_review') {\n        if ($refund_id <= 0) return false;\n        $refund = wc_get_order($refund_id);\n        if (!$refund || !method_exists($refund, 'get_parent_id') || (int)$refund->get_parent_id() !== (int)$order_id) return false;\n    }\n    $email = sanitize_email($order->get_billing_email());\n    if (!$email || !is_email($email)) return false;\n    $logged = 0;\n    foreach ($order->get_items('line_item') as $item) {\n        if (!is_object($item) || !method_exists($item, 'get_product')) continue;\n        $product = $item->get_product();\n        if (!$product || !$product->is_virtual() || $product->get_sku() !== 'LIL-COURSE-001') continue;\n        $product_id = (int)$item->get_product_id();\n        $item_id = method_exists($item, 'get_id') ? (int)$item->get_id() : 0;\n        if ($product_id <= 0 || $item_id <= 0) continue;\n        $key = '_llb_event_' . md5($event . ':' . $item_id . ':' . $refund_id);\n        if ($order->get_meta($key, true)) continue;\n        $record = array('event'=>$event,'order_id'=>(int)$order_id,'line_item_id'=>$item_id,\n            'product_id'=>$product_id,'email'=>$email,'refund_id'=>(int)$refund_id,\n            'mode'=>'audit_only','timestamp'=>gmdate('c'));\n        $order->update_meta_data($key, wp_json_encode($record));\n        $logged++;\n    }\n    if ($logged) $order->save();\n    return $logged;\n}\n"
@@ -25,6 +29,10 @@
     {
       "step": "activatePlugin",
       "pluginPath": "woocommerce-lms-bridge/woocommerce-lms-bridge.php"
+    },
+    {
+      "step": "mkdir",
+      "path": "/wordpress/wp-content/plugins/lms-lab-qa-runner"
     },
     {
       "step": "writeFile",
