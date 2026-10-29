@@ -2,7 +2,7 @@
 /**
  * Plugin Name: LMS Lab — TalentLMS V2 Live Readiness Adapter (Disabled by Default)
  * Description: Explicitly gated real TalentLMS HTTP transport for an approved isolated tenant. No automatic hooks, cron, payment calls, or background sync.
- * Version: 0.1.0
+ * Version: 0.1.1
  */
 if (!defined('ABSPATH')) exit;
 
@@ -116,8 +116,23 @@ function lls100_request($operation, $user_id = 0, $course_id = 0, $mock_transpor
             || !array_key_exists('_data',$parsed) || isset($parsed['error'])) {
             return array('state'=>'review','reason'=>'unconfirmed_response','http'=>200);
         }
-        if ($operation==='list_courses' && !is_array($parsed['_data'])) {
-            return array('state'=>'review','reason'=>'invalid_course_list','http'=>200);
+        if ($operation==='list_courses') {
+            if (!is_array($parsed['_data'])) {
+                return array('state'=>'review','reason'=>'invalid_course_list','http'=>200);
+            }
+        } else {
+            // HTTP 200 plus any arbitrary _data is not proof that THIS approved
+            // learner/course was changed. Reject response identity mismatches
+            // or incomplete echoes; investigate manually rather than claim success.
+            $data = $parsed['_data'];
+            if (!is_array($data) || !array_key_exists('user_id',$data)
+                || !array_key_exists('course_id',$data)
+                || filter_var($data['user_id'], FILTER_VALIDATE_INT) === false
+                || filter_var($data['course_id'], FILTER_VALIDATE_INT) === false
+                || (int)$data['user_id'] !== (int)$user_id
+                || (int)$data['course_id'] !== (int)$course_id) {
+                return array('state'=>'review','reason'=>'remote_identity_not_confirmed','http'=>200);
+            }
         }
         return array('state'=>'done','reason'=>'verified_response_shape','http'=>200);
     }
