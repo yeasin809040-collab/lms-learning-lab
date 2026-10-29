@@ -11,6 +11,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import StaleElementReferenceException, NoSuchElementException
 
 BASE = os.getenv("LLS95_SITE_URL", "http://127.0.0.1:8888").rstrip("/")
 USER = "lls95_demo_student"
@@ -35,6 +36,17 @@ def wait_css(selector, seconds=25):
         EC.presence_of_element_located((By.CSS_SELECTOR, selector))
     )
 
+def wait_portal_state(expected, seconds=25):
+    # A successful WordPress login/logout causes a page navigation. A previously
+    # returned element may become stale while Chrome swaps the old document.
+    def correct_state(browser):
+        try:
+            element = browser.find_element(By.CSS_SELECTOR, ".lls95-login-lab")
+            return element.get_attribute("data-login-state") == expected
+        except (StaleElementReferenceException, NoSuchElementException):
+            return False
+    return WebDriverWait(driver, seconds).until(correct_state)
+
 opts = webdriver.ChromeOptions()
 opts.add_argument("--headless=new")
 opts.add_argument("--no-sandbox")
@@ -49,7 +61,7 @@ try:
     # Fresh incognito browser profile, truly logged out.
     driver.get(PORTAL)
     portal = wait_css(".lls95-login-lab")
-    check("Anonymous browser session starts logged out", portal.get_attribute("data-login-state")=="guest")
+    check("Anonymous browser session starts logged out", wait_portal_state("guest"))
     check("WordPress sign-in form is available", bool(driver.find_elements(By.ID,"user_login"))
         and bool(driver.find_elements(By.ID,"user_pass")))
 
@@ -64,7 +76,7 @@ try:
 
     portal=wait_css(".lls95-login-lab")
     check("Real WordPress form login authenticates subscriber",
-          portal.get_attribute("data-login-state")=="enrolled")
+          wait_portal_state("enrolled"))
     check("Authenticated browser user is synthetic learner",
           USER in driver.find_element(By.ID,"lls95-user").text)
     check("WordPress auth cookie exists",any("logged_in" in c["name"] for c in driver.get_cookies()))
@@ -102,7 +114,7 @@ try:
     logout.click()
     portal=wait_css(".lls95-login-lab")
     check("WordPress logout changes browser auth state to guest",
-          portal.get_attribute("data-login-state")=="guest")
+          wait_portal_state("guest"))
     check("WordPress session has no logged-in auth cookie",
           not any("logged_in" in c["name"] for c in driver.get_cookies()))
 
@@ -126,7 +138,7 @@ try:
     wait_css("#wp-submit").click()
     portal=wait_css(".lls95-login-lab")
     check("Student can sign in again after logging out",
-          portal.get_attribute("data-login-state")=="enrolled")
+          wait_portal_state("enrolled"))
     driver.get(canonical_lesson_url)
     check("Private lesson accessible again after second login",
           MARKER in driver.page_source)
