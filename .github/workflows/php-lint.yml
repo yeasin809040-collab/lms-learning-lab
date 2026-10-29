@@ -46,5 +46,10 @@ jobs:
           for f in files:
               b = json.loads(f.read_text(encoding='utf-8'))
               assert isinstance(b.get('steps'),list), f'{f} missing steps'
+              script_steps = [s.get('code', '') for s in b['steps'] if s.get('step') == 'runPHP']
+              if any('lls95_seed_browser_demo()' in s for s in script_steps):
+                  assert any("define('LLS95_ENABLE_DISPOSABLE_DEMO',true)" in s
+                             for s in script_steps), f'{f}: missing explicitly-scoped disposable login opt-in'
+                  print(f'{f}: public-password demo opt-in explicitly scoped to disposable Playground')
               print(f'{f}: {len(b["steps"])} steps; valid JSON')
           PY
