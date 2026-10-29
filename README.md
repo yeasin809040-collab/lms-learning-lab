@@ -1,18 +1,22 @@
-# LMS Learning Lab
+# LMS Learning Lab — reproducible WooCommerce audit integration lab
 
-This repository is used for learning and testing WordPress + WooCommerce integration with a **Learning Lab WooCommerce LMS Bridge (Audit Mode)**.
+This public repository contains a test-only WordPress/WooCommerce course-order integration lab.
 
-## Verified
-- WordPress Playground screenshots showed WooCommerce 11.2.1 and the LMS Bridge v0.3.0 activated together.
-- Audit-only LMS Bridge PHP stub tests passed in a separate environment.
+**Latest verified real-browser result: 12/12 QA checks passed on 2026-10-29.**
 
-## Not yet verified
-- End-to-end WooCommerce order completion event in this specific WordPress session.
-- Refund and duplicate-event protection on a real WooCommerce installation.
-- Any live TalentLMS enrollment or API connection.
+[View observed PASS/FAIL evidence](./QA-EVIDENCE-2026-10-29.md)
 
-## Safety
-Never upload WordPress database backups, API tokens, passwords, private customer information, or other secrets to this public repository.
+[Launch the tested WordPress Playground Blueprint](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fraw.githubusercontent.com%2Fyeasin809040-collab%2Flms-learning-lab%2Fmain%2Fplayground%2Fblueprint-v2-repaired.json)
 
-## Next step
-Add the audit-only plugin source and a clearly labeled integration test runner. Run those tests in an isolated WordPress test environment; collect actual output rather than reporting success from code review alone.
+## Components
+
+- `plugins/woocommerce-lms-bridge/woocommerce-lms-bridge.php`: v0.3.0 event audit-only bridge (no TalentLMS API calls).
+- `plugins/lms-lab-qa-runner/lms-lab-qa-runner.php`: v1.1.0 synthetic database-only order and refund test runner.
+- `playground/blueprint-v2-repaired.json`: fixed automated Playground provisioning script.
+- `QA-EVIDENCE-2026-10-29.md`: exact observed results and limitations.
+
+## Caution
+
+**This is NOT a live payment gateway or a live TalentLMS integration.** The 12 PASS checks validate WooCommerce database state and audit-only hooks. They do not validate student enrollment, actual money transactions, or production deployment.
+
+Never upload secrets, customer personal data, or database backup archives to this public repository.
