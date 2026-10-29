@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "plugins/**/*.php"
+      - "tests/**/*.php"
       - "playground/**/*.json"
       - ".github/workflows/php-lint.yml"
   workflow_dispatch:
@@ -27,6 +28,9 @@ jobs:
             echo "Linting $file"
             php -l "$file"
           done
+      - name: Run 95 milestone offline PHP behavioral regressions
+        run: |
+          php tests/test-95-reconciliation-offline.php
       - name: Validate Playground Blueprint JSON
         run: |
           python3 - <<'PY'
