@@ -15,7 +15,8 @@
   },
   "config": {
     "WP_DEBUG": true,
-    "WP_DEBUG_LOG": true
+    "WP_DEBUG_LOG": true,
+    "LLS95_ENABLE_DISPOSABLE_DEMO": true
   },
   "port": 8888
 }
