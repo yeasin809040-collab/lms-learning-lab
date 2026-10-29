@@ -8,6 +8,14 @@ This public repository contains **test-only WordPress/WooCommerce course-access 
 
 This is an evidence-backed, AI-assisted learning project. Its 146 real WordPress/Chrome checks passed together in one run, but its external TalentLMS API was not tested against a live paid tenant. It is not a paid client implementation.
 
+## Second independent double audit (Oct 30, 2026)
+
+**[Latest independent audit report](./QA-SECOND-INDEPENDENT-CROSS-CHECK-2026-10-30.md)** — reviewed source, found and fixed four additional safety gaps: synthetic-only audit email allowlisting, learner entitlement cleanup after cancelled/failed orders, explicit opt-in for the public-password browser demo, and mismatched TalentLMS V2 write response detection.
+
+The [real WordPress / WooCommerce / MySQL / Selenium Chrome CI run](https://github.com/yeasin809040-collab/lms-learning-lab/actions/runs/40968538741) **completed successfully: 168 PASS / 0 FAIL** (108 original WP checks, 13 payment-flow checks, 22 new negative/privacy checks, 11 live API guards, 14 browser checks). [PHP and blueprint validation](https://github.com/yeasin809040-collab/lms-learning-lab/actions/runs/40969037485) also passed: **69** offline TalentLMS V2 adapter contracts, **26** offline reconciliation tests, **2** disabled-demo safety tests, PHP lint and disposable Playground JSON checks.
+
+**These are verified *test-lab* results, not production readiness.** The authorized real TalentLMS API and payment gateway tests remain unperformed. The published Upwork sample with 146 checks is the earlier, still accurate snapshot; latest evidence is linked above.
+
 ## Independent cross-check (Oct 29, 2026)
 
 **[Read the full independent readiness audit](./QA-INDEPENDENT-CROSS-CHECK-2026-10-29.md).** A real WooCommerce virtual-only payment event issue was found and corrected in the audit, student-access and mock queue plugins. The resulting [WordPress + Chrome CI run](https://github.com/yeasin809040-collab/lms-learning-lab/actions/runs/40909797213) passed **146 / 146** checks: 108 existing WordPress QA, 13 new payment-completion checks, 11 live API guards and 14 browser tests. The result verifies the **isolated test lab**, not a production-ready TalentLMS connection.
@@ -34,7 +42,7 @@ It installs WooCommerce and the test plugins in a new disposable environment, th
 
 ## Components
 
-- `plugins/woocommerce-lms-bridge/`: v0.3.0 audit-only WooCommerce order/refund events.
+- `plugins/woocommerce-lms-bridge/`: v0.3.2 synthetic-only audit of WooCommerce order, refund, cancellation and failure events.
 - `plugins/lms-lab-qa-runner/`: 12-check order/refund suite.
 - `plugins/lms-lab-course-access/`: WordPress-local **synthetic-only** learner access and protected lessons.
 - `plugins/lms-lab-access-qa/`: 22-check course access suite.
@@ -60,7 +68,7 @@ Never commit real API keys, passwords or customer information to this public rep
 **95% training milestone remains verified; 100% is NOT claimed.**
 
 - [TalentLMS V2 real API readiness adapter](./plugins/lms-lab-talentlms-live-readiness/lms-lab-talentlms-live-readiness.php) is **disabled by default**, limited to private server-side credentials, approved single test user/course IDs, HTTPS and explicit per-action write consent.
-- [59 PHP contract checks passed, 0 failed](https://github.com/yeasin809040-collab/lms-learning-lab/actions/runs/40906982352), testing safe requests and errors with **no real API calls**.
+- [69 offline PHP contract checks passed, 0 failed](https://github.com/yeasin809040-collab/lms-learning-lab/actions/runs/40969037485), testing safe requests and errors with **no real API calls**.
 - [Real WordPress guard test](./tests/test-100-wordpress-live-guard.php) passed **11 / 11** on actual WordPress/MySQL; [CI evidence](https://github.com/yeasin809040-collab/lms-learning-lab/actions/runs/40907369807) also reconfirmed 108 WordPress QA checks and 14 real Chrome checks. Full pre-live proof: [final 5% evidence](./QA-EVIDENCE-FINAL-5-PRELIVE-2026-10-29.md).
 - [**Readiness, owner authorization and safe real test procedure**](./docs/TALENTLMS-LIVE-TEST-RUNBOOK.md).
 
