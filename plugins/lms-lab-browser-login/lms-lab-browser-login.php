@@ -2,7 +2,7 @@
 /**
  * Plugin Name: LMS Lab — Real Browser Student Login Lab
  * Description: Explicit opt-in browser login demonstration for disposable WordPress Playground only. Creates a synthetic example.com learner and private lesson, never a real customer.
- * Version: 0.1.0
+ * Version: 0.1.1
  * Requires Plugins: woocommerce
  */
 if (!defined('ABSPATH')) { exit; }
@@ -13,7 +13,20 @@ define('LLS95_TEST_PASSWORD', 'LabDemo95!2026');
 
 add_shortcode('lls95_student_portal', 'lls95_student_portal');
 
+/**
+ * The username/password in this public demo are deliberately known. Seeding
+ * must NEVER be possible just because a plugin was activated on a real site.
+ * In the isolated wp-env CI only, set LLS95_ENABLE_DISPOSABLE_DEMO=true.
+ */
+function lls95_disposable_demo_enabled() {
+    return defined('LLS95_ENABLE_DISPOSABLE_DEMO')
+        && LLS95_ENABLE_DISPOSABLE_DEMO === true;
+}
 function lls95_seed_browser_demo() {
+    if (!lls95_disposable_demo_enabled()) {
+        return new WP_Error('lls95_demo_disabled',
+            'Refusing to create a public-password learner without an explicit disposable lab opt-in.');
+    }
     if (!function_exists('lls_lab_has_access') || !function_exists('wc_create_order')
         || !function_exists('lls_lab_eligible_order')) {
         return new WP_Error('lls95_missing', 'Required local WordPress plugins not loaded');
