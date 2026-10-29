@@ -2,11 +2,13 @@
 /**
  * Plugin Name: Learning Lab — WooCommerce LMS Bridge (Audit Mode)
  * Description: Records allowlisted course order lifecycle events; no live LMS calls or access changes.
- * Version: 0.3.0
+ * Version: 0.3.1
  * Requires Plugins: woocommerce
  */
 if (!defined('ABSPATH')) exit;
 add_action('woocommerce_order_status_completed', 'llb_order_completed', 20, 1);
+// A successfully paid virtual-only order commonly remains Processing.
+add_action('woocommerce_payment_complete', 'llb_order_completed', 20, 1);
 add_action('woocommerce_order_status_refunded', 'llb_order_refunded', 20, 1);
 add_action('woocommerce_order_refunded', 'llb_partial_refund', 20, 2);
 function llb_order_completed($order_id) { return llb_capture($order_id, 'paid'); }
@@ -15,11 +17,18 @@ function llb_partial_refund($order_id, $refund_id) {
     if ((int)$refund_id <= 0) return false;
     return llb_capture($order_id, 'refund_review', (int)$refund_id);
 }
+function llb_paid_ready($order) {
+    return $order && method_exists($order, 'has_status')
+        && ($order->has_status('completed')
+            || ($order->has_status('processing')
+                && method_exists($order, 'get_date_paid')
+                && $order->get_date_paid('edit')));
+}
 function llb_capture($order_id, $event, $refund_id = 0) {
     if (!function_exists('wc_get_order') || !in_array($event, array('paid','refunded','refund_review'), true)) return false;
     $order = wc_get_order($order_id);
     if (!$order || !method_exists($order, 'get_items')) return false;
-    if ($event === 'paid' && (!method_exists($order, 'has_status') || !$order->has_status('completed'))) return false;
+    if ($event === 'paid' && !llb_paid_ready($order)) return false;
     if ($event === 'refunded' && (!method_exists($order, 'has_status') || !$order->has_status('refunded'))) return false;
     if ($event === 'refund_review') {
         if ($refund_id <= 0) return false;
