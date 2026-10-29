@@ -31,6 +31,9 @@ jobs:
       - name: Run 95 milestone offline PHP behavioral regressions
         run: |
           php tests/test-95-reconciliation-offline.php
+      - name: Validate disabled-by-default TalentLMS V2 adapter contract
+        run: |
+          php tests/test-100-talentlms-adapter-offline.php
       - name: Validate Playground Blueprint JSON
         run: |
           python3 - <<'PY'
