@@ -1,0 +1,41 @@
+name: PHP and Blueprint source checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "plugins/**/*.php"
+      - "playground/**/*.json"
+      - ".github/workflows/php-lint.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out learning lab
+        uses: actions/checkout@v4
+      - name: Show PHP runtime
+        run: php -v
+      - name: Validate PHP plugin syntax
+        run: |
+          set -eu
+          find plugins -type f -name '*.php' -print0 | while IFS= read -r -d '' file; do
+            echo "Linting $file"
+            php -l "$file"
+          done
+      - name: Validate Playground Blueprint JSON
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          files = list(Path('playground').glob('*.json'))
+          assert files, 'No Blueprints found'
+          for f in files:
+              b = json.loads(f.read_text(encoding='utf-8'))
+              assert isinstance(b.get('steps'),list), f'{f} missing steps'
+              print(f'{f}: {len(b["steps"])} steps; valid JSON')
+          PY
