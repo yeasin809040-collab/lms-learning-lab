@@ -2,6 +2,12 @@
 
 This public repository contains **test-only WordPress/WooCommerce course-access integration software** with reproducible WordPress Playground tests and a real Docker WordPress/MySQL + Chrome browser GitHub Actions workflow.
 
+## Portfolio presentation
+
+[**WordPress + WooCommerce Course Access & Reliability Lab — independent demonstration case study**](./PORTFOLIO-CASE-STUDY-WORDPRESS-WOOCOMMERCE-LMS.md)
+
+This is an evidence-backed, AI-assisted learning project. Its 146 real WordPress/Chrome checks passed together in one run, but its external TalentLMS API was not tested against a live paid tenant. It is not a paid client implementation.
+
 ## Independent cross-check (Oct 29, 2026)
 
 **[Read the full independent readiness audit](./QA-INDEPENDENT-CROSS-CHECK-2026-10-29.md).** A real WooCommerce virtual-only payment event issue was found and corrected in the audit, student-access and mock queue plugins. The resulting [WordPress + Chrome CI run](https://github.com/yeasin809040-collab/lms-learning-lab/actions/runs/40909797213) passed **146 / 146** checks: 108 existing WordPress QA, 13 new payment-completion checks, 11 live API guards and 14 browser tests. The result verifies the **isolated test lab**, not a production-ready TalentLMS connection.
