@@ -48,10 +48,17 @@ Without a properly configured paid tenant, real outgoing reads and writes are bl
 
 ## Tests done without any paid account
 
-- [Public PHP API adapter contract tests](../tests/test-100-talentlms-adapter-offline.php): **59 PASS / 0 FAIL**, zero network calls. [GitHub Actions evidence](https://github.com/yeasin809040-collab/lms-learning-lab/actions/runs/40906982352).
+- [Public PHP API adapter contract tests](../tests/test-100-talentlms-adapter-offline.php): **69 PASS / 0 FAIL**, zero network calls. [GitHub Actions evidence](https://github.com/yeasin809040-collab/lms-learning-lab/actions/runs/40969037485).
 - [Real WordPress guard test](../tests/test-100-wordpress-live-guard.php): **11 PASS / 0 FAIL** in real WordPress/MySQL, verifying live HTTP requests are disabled without approved private tenant credentials. [GitHub Actions run](https://github.com/yeasin809040-collab/lms-learning-lab/actions/runs/40907369807).
 - All prior WordPress/MySQL + Chrome regression results remain documented at 95%.
 
 ## Current blocker
 
 **No paid and authorized TalentLMS tenant/API is connected.** Real API-side user enrollment/unenrollment cannot be verified without permission and valid credentials. This should be treated as an external dependency, *not* as failure of the existing WordPress integration tests.
+
+
+## Second independent audit (Oct 30, 2026)
+
+[Full double-audit evidence](../QA-SECOND-INDEPENDENT-CROSS-CHECK-2026-10-30.md). Current offline adapter contract: **69 PASS / 0 FAIL**. The live write adapter now marks any HTTP 200 response with missing/mismatched `user_id` or `course_id` as `review`, never `done`. This **must be reconciled against the real TalentLMS response schema** once an authorized paid test tenant is available; until then no real user/course state has been verified.
+
+Current real WordPress/MySQL/Chrome lab evidence is [168 PASS / 0 FAIL](https://github.com/yeasin809040-collab/lms-learning-lab/actions/runs/40968538741), which includes new privacy and canceled/failed order behavior regressions. This does not expand the adapter into an automatic production synchronization service.
