@@ -112,6 +112,27 @@ ck(lls100_request('enroll',901,902,function(){return fake_response(200,'not-json
 ck(lls100_request('enroll',901,902,function(){return fake_response(200,'{"unrelated":1}');})['state']==='review','Missing _data does not falsely confirm');
 ck(lls100_request('enroll',901,902,function(){return fake_response(200,'{"_data":[],"error":"fail"}');})['state']==='review','Error envelope overrides HTTP 200');
 ck(lls100_request('list_courses',0,0,function(){return fake_response(200,'{"_data":123}');})['state']==='review','Unexpected list schema triggers manual review');
+// A plausible HTTP 200 must not certify the wrong remote learner or course.
+$wrong_data=array(
+    '{"_data":{"user_id":999,"course_id":902}}',
+    '{"_data":{"user_id":901,"course_id":999}}',
+    '{"_data":{"user_id":901}}',
+    '{"_data":{"course_id":902}}',
+    '{"_data":{"status":"ok"}}',
+    '{"_data":[]}',
+    '{"_data":false}',
+    '{"_data":{"user_id":"hello","course_id":902}}',
+);
+foreach ($wrong_data as $i=>$body) {
+    $result=lls100_request('enroll',901,902,function()use($body){return fake_response(200,$body);});
+    ck($result['state']==='review' && $result['reason']==='remote_identity_not_confirmed',
+        'Successful-looking POST response does not confirm wrong/empty identity case '.($i+1));
+}
+ck(lls100_request('unenroll',901,902,function(){return fake_response(200,'{"_data":{"user_id":901,"course_id":999}}');})['state']==='review',
+    'Wrong-course DELETE response also requires review');
+ck(lls100_request('list_courses',0,0,function(){return fake_response(200,'{"_data":[]}');})['state']==='done',
+    'Empty course list is a valid read-only API response');
+
 ck(lls100_request('enroll',901,902,function(){return 'corrupt_transport';})['state']==='review','Transport result type must be valid');
 ck(lls100_request('enroll',901,902,function(){return fake_response(302);})['state']==='review','Redirect is not success');
 ck($GLOBALS['lls100_outbound']===0,'No network calls during all contract tests');
