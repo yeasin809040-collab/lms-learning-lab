@@ -8,6 +8,7 @@ on:
       - "plugins/**/*.php"
       - "tests/run-wp-env-integration.php"
       - "tests/test-payment-complete-integration.php"
+      - "tests/test-2026-double-audit-regressions.php"
       - "tests/test-100-wordpress-live-guard.php"
       - "tests/test-browser-login-selenium.py"
       - ".wp-env.json"
@@ -66,6 +67,9 @@ jobs:
 
       - name: Verify gateway-style paid Processing virtual-course lifecycle
         run: wp-env run cli wp eval-file wp-content/lms-lab-tests/test-payment-complete-integration.php
+
+      - name: Independent privacy + cancellation and failure regressions
+        run: wp-env run cli wp eval-file wp-content/lms-lab-tests/test-2026-double-audit-regressions.php
 
       - name: Verify TalentLMS real HTTP disabled without approved tenant
         run: wp-env run cli wp eval-file wp-content/lms-lab-tests/test-100-wordpress-live-guard.php
