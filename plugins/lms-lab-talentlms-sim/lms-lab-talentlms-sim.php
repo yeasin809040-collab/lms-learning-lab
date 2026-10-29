@@ -2,7 +2,7 @@
 /**
  * Plugin Name: LMS Learning Lab — TalentLMS V2 API Transport Simulator
  * Description: Test-only, fail-closed WordPress HTTP client, audit-safe retry queue and controlled TalentLMS API V2 responses. NEVER sends real TalentLMS traffic.
- * Version: 0.1.0
+ * Version: 0.1.1
  * Requires Plugins: woocommerce
  */
 if (!defined('ABSPATH')) exit;
@@ -12,6 +12,7 @@ define('LLS85_TEST_HOST', 'https://lms-learning-lab.invalid');
 define('LLS85_API_VERSION', '2025-01-01');
 
 add_action('woocommerce_order_status_completed', function($id) { lls85_queue_order($id, 'enroll'); }, 50, 1);
+add_action('woocommerce_payment_complete', function($id) { lls85_queue_order($id, 'enroll'); }, 50, 1);
 add_action('woocommerce_order_status_refunded', function($id) { lls85_queue_order($id, 'unenroll'); }, 50, 1);
 
 function lls85_jobs() {
@@ -25,7 +26,7 @@ function lls85_queue_order($order_id, $action) {
     if (!function_exists('lls_lab_eligible_order') || !in_array($action, array('enroll','unenroll'), true)) return false;
     $order = wc_get_order($order_id);
     if (!lls_lab_eligible_order($order)) return false;
-    if ($action === 'enroll' && !$order->has_status('completed')) return false;
+    if ($action === 'enroll' && (!function_exists('lls_lab_order_paid_ready') || !lls_lab_order_paid_ready($order))) return false;
     if ($action === 'unenroll' && !$order->has_status('refunded')) return false;
 
     $uid = (int) $order->get_meta('_lls_lab_student_user', true);
@@ -144,8 +145,8 @@ function lls85_process_job($job_key, $now) {
     $order = wc_get_order((int)$job['order_id']);
     if (!$order || !lls_lab_eligible_order($order)) {
         $job['state']='terminal'; $job['error_type']='invalid_order';
-    } elseif ($job['action']==='enroll' && !$order->has_status('completed')) {
-        $job['state']='cancelled'; $job['error_type']='order_no_longer_completed';
+    } elseif ($job['action']==='enroll' && (!function_exists('lls_lab_order_paid_ready') || !lls_lab_order_paid_ready($order))) {
+        $job['state']='cancelled'; $job['error_type']='order_no_longer_paid_ready';
     } elseif ($job['action']==='unenroll' && (!$order->has_status('refunded')
            || lls_lab_has_access((int)$job['user_id']))) {
         $job['state']='cancelled'; $job['error_type']='access_state_changed';
