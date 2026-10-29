@@ -1,22 +1,36 @@
-# LMS Learning Lab — reproducible WooCommerce audit integration lab
+# LMS Learning Lab — WooCommerce Course Access Test Lab
 
-This public repository contains a test-only WordPress/WooCommerce course-order integration lab.
+A reproducible **WordPress + WooCommerce** learning project with actual WordPress database-backed synthetic purchase and course-access QA.
 
-**Latest verified real-browser result: 12/12 QA checks passed on 2026-10-29.**
+## Verified testing milestones
 
-[View observed PASS/FAIL evidence](./QA-EVIDENCE-2026-10-29.md)
+| Milestone | Browser evidence | Result |
+|---|---|---|
+| 65% — WooCommerce orders, Bridge audits and refunds | [12-check report](./QA-EVIDENCE-2026-10-29.md) | **12 PASS / 0 FAIL** |
+| 75% — WordPress student account provisioning, protected lessons, refunds, duplicate & multiple-order handling | [22-check report](./QA-EVIDENCE-75-MILESTONE-2026-10-29.md) | **22 PASS / 0 FAIL** |
 
-[Launch the tested WordPress Playground Blueprint](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fraw.githubusercontent.com%2Fyeasin809040-collab%2Flms-learning-lab%2Fmain%2Fplayground%2Fblueprint-v2-repaired.json)
+These percentages are internal **learning-plan checkpoints**, not verified percentages of a full TalentLMS project.
 
-## Components
+### Try the latest lab
 
-- `plugins/woocommerce-lms-bridge/woocommerce-lms-bridge.php`: v0.3.0 event audit-only bridge (no TalentLMS API calls).
-- `plugins/lms-lab-qa-runner/lms-lab-qa-runner.php`: v1.1.0 synthetic database-only order and refund test runner.
-- `playground/blueprint-v2-repaired.json`: fixed automated Playground provisioning script.
-- `QA-EVIDENCE-2026-10-29.md`: exact observed results and limitations.
+[**Launch WordPress Playground student-access QA Blueprint**](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fraw.githubusercontent.com%2Fyeasin809040-collab%2Flms-learning-lab%2Fmain%2Fplayground%2Fblueprint-v3-student-access.json)
 
-## Caution
+Provisioning installs WooCommerce and four test plugins in a fresh disposable instance. The initial synthetic QA runs in the Blueprint. To inspect the saved result navigate to **Tools → LMS Lab Student Access QA**. For the earlier audit suite use **Tools → LMS Lab Real QA**.
 
-**This is NOT a live payment gateway or a live TalentLMS integration.** The 12 PASS checks validate WooCommerce database state and audit-only hooks. They do not validate student enrollment, actual money transactions, or production deployment.
+## Architecture
 
-Never upload secrets, customer personal data, or database backup archives to this public repository.
+- `plugins/woocommerce-lms-bridge/`: audit-only WordPress/WooCommerce event bridge. No real TalentLMS calls.
+- `plugins/lms-lab-qa-runner/`: WooCommerce order, audit and refund QA.
+- `plugins/lms-lab-course-access/`: **test-only** WordPress learner provisioning, order-level entitlements, page protection and refund revocation.
+- `plugins/lms-lab-access-qa/`: 22 additional student-access checks.
+- `playground/blueprint-v3-student-access.json`: repeatable provisioning and synthetic testing.
+
+## Important limits
+
+**This is not a live TalentLMS integration.** Student entitlement lives locally in WordPress, not TalentLMS. The lab accepts only orders explicitly marked synthetic with `@example.com` emails. No payment gateway runs, and login/logout through a real web browser is not yet verified. Avoid deploying the test-only plugins to production.
+
+The first 12-check suite passed in one real-browser run, and the 22-check suite passed in a second real-browser run; do not treat them as 34 tests observed in one execution.
+
+The TalentLMS API v2 requires `X-API-Key` and `X-API-Version` and is limited to paid plans; API enrollment remains an upcoming, unverified task.
+
+Never commit secrets or real customer data to this public repository.
