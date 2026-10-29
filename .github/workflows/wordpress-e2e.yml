@@ -7,6 +7,7 @@ on:
     paths:
       - "plugins/**/*.php"
       - "tests/run-wp-env-integration.php"
+      - "tests/test-payment-complete-integration.php"
       - "tests/test-100-wordpress-live-guard.php"
       - "tests/test-browser-login-selenium.py"
       - ".wp-env.json"
@@ -62,6 +63,9 @@ jobs:
 
       - name: Execute all four REAL WordPress integration QA suites
         run: wp-env run cli wp eval-file wp-content/lms-lab-tests/run-wp-env-integration.php
+
+      - name: Verify gateway-style paid Processing virtual-course lifecycle
+        run: wp-env run cli wp eval-file wp-content/lms-lab-tests/test-payment-complete-integration.php
 
       - name: Verify TalentLMS real HTTP disabled without approved tenant
         run: wp-env run cli wp eval-file wp-content/lms-lab-tests/test-100-wordpress-live-guard.php
