@@ -50,3 +50,12 @@ This report separates two **different** learning artifacts:
 4. Only with separate authorized WordPress/WooCommerce/TalentLMS staging and explicit permission may the external integration gates move from PENDING.
 
 No real money, paid plan, client data, Upwork Connects, proposals, or messages are required for these free demo QA steps.
+
+## 2026-10-30 Lovable hardening follow-up (later than the source audit above)
+The Lovable free-plan AI agent edited the project to fix six reproduced **demo-only** defects: paid-course price tampering, nonexistent course enrollment, signed-out/cross-user checkout, cross-user refund, invalid lesson completion, and malformed localStorage crash. It also tightened sign-up and redirect validation, made repeat refunds idempotent, and replaced the manually selectable external-integration PASS statuses with locked BLOCKED/PENDING labels. Lovable commit: `d7c83d93888d655dc80a5728bb5b011ebc4933c1`.
+
+**Pre-final-change test evidence:** 83 Vitest checks passed across 6 files. Desktop browser run had 12 passed steps, four unfinished due to timeout on the retry path, and one QA page load error; the script's 'no uncaught errors' PASS was incorrect. Mobile browser walkthrough was **not run**. These results precede the last QA page edits and must not be treated as post-fix verification.
+
+**Current blocker:** The agent explicitly reported that the Lovable preview may have build/type-check errors, the QA page has not been revalidated, `QA_REPORT.md` was not created, and lint/build were not rerun. A follow-up Lovable edit was attempted but **rejected because the free workspace is out of credits**. No paid plan or credit top-up was authorized, so no further Lovable mutation was made. Current build and browser status are **UNVERIFIED**, not PASS.
+
+**Important:** This follow-up supersedes the older observations in the matrix above where it describes the pre-hardening code (e.g. manual /qa status controls). It does not change the separate GitHub WordPress/Chrome 168-pass CI evidence, nor the fact that all real TalentLMS and payment-gateway integration gates remain BLOCKED.
