@@ -47,16 +47,19 @@ try:
     driver.get(ROOT)
     WebDriverWait(driver, 10).until(lambda d: d.find_elements(By.CSS_SELECTOR, ".menu-toggle"))
     assert driver.execute_script("return document.documentElement.scrollWidth <= window.innerWidth + 1;")
+    driver.save_screenshot(str(ARTIFACTS / "mobile-wordpress.png"))
     toggle = driver.find_element(By.CSS_SELECTOR, ".menu-toggle")
     assert toggle.is_displayed()
     toggle.click()
     assert toggle.get_attribute("aria-expanded") == "true"
     driver.find_element(By.CSS_SELECTOR, ".main-nav a[href$='#services']").click()
-    assert toggle.get_attribute("aria-expanded") == "false"
+    # Anchor navigation may produce a fresh DOM. Reacquire instead of using a stale element.
+    WebDriverWait(driver, 10).until(lambda d: d.find_element(By.CSS_SELECTOR, ".menu-toggle").get_attribute("aria-expanded") == "false")
+    toggle = driver.find_element(By.CSS_SELECTOR, ".menu-toggle")
+    assert "#services" in driver.current_url
     toggle.click()
     driver.switch_to.active_element.send_keys(Keys.ESCAPE)
-    assert toggle.get_attribute("aria-expanded") == "false"
-    driver.save_screenshot(str(ARTIFACTS / "mobile-wordpress.png"))
+    WebDriverWait(driver, 10).until(lambda d: d.find_element(By.CSS_SELECTOR, ".menu-toggle").get_attribute("aria-expanded") == "false")
     print("PASS mobile: no horizontal overflow, responsive navigation and Escape")
 
     # Invalid CSRF nonce must be rejected before mail handling. Synthetic form data only.
