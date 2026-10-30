@@ -1,5 +1,5 @@
 """Smoke test on a real disposable WordPress installation and real headless Chrome."""
-import os
+from base64 import b64decode
 from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -14,6 +14,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 ROOT = "http://127.0.0.1:8888"
 ARTIFACTS = Path("artifacts")
 ARTIFACTS.mkdir(exist_ok=True)
+
+
+def save_full_page_screenshot(browser, filename):
+    """Capture all homepage sections, not just the visible browser viewport."""
+    shot = browser.execute_cdp_cmd("Page.captureScreenshot", {"format": "png", "captureBeyondViewport": True})
+    (ARTIFACTS / filename).write_bytes(b64decode(shot["data"]))
 
 options = Options()
 options.add_argument("--headless=new")
@@ -34,6 +40,7 @@ try:
     assert driver.execute_script("return arguments[0].complete && arguments[0].naturalWidth > 0;", hero)
     assert driver.execute_script("return document.documentElement.scrollWidth <= window.innerWidth + 1;")
     driver.save_screenshot(str(ARTIFACTS / "desktop-wordpress.png"))
+    save_full_page_screenshot(driver, "desktop-full-page.png")
     print("PASS desktop: WordPress-rendered homepage, image and layout")
 
     # Check ordinary WordPress pages and 404 routing. No customer data is used.
@@ -48,6 +55,7 @@ try:
     WebDriverWait(driver, 10).until(lambda d: d.find_elements(By.CSS_SELECTOR, ".menu-toggle"))
     assert driver.execute_script("return document.documentElement.scrollWidth <= window.innerWidth + 1;")
     driver.save_screenshot(str(ARTIFACTS / "mobile-wordpress.png"))
+    save_full_page_screenshot(driver, "mobile-full-page.png")
     toggle = driver.find_element(By.CSS_SELECTOR, ".menu-toggle")
     assert toggle.is_displayed()
     toggle.click()
