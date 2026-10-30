@@ -1,0 +1,9 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/wp-env.json",
+  "themes": ["./northline-studio"],
+  "config": {
+    "WP_DEBUG": true,
+    "WP_DEBUG_LOG": true
+  },
+  "port": 8888
+}

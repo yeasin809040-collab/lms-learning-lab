@@ -1,0 +1,74 @@
+name: Northline WordPress staging and Chrome visual QA
+
+on:
+  push:
+    branches: [northline-staging-20261030]
+    paths:
+      - "portfolio-demos/northline-studio/**"
+      - "portfolio-demos/.wp-env.json"
+      - "portfolio-demos/tests/**"
+      - ".github/workflows/northline-staging.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  staging:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 23
+    steps:
+      - name: Check out isolated staging branch
+        uses: actions/checkout@v4
+
+      - name: Show preinstalled PHP and Chrome
+        run: |
+          php -v
+          google-chrome --version
+          docker --version
+
+      - name: Validate PHP theme source
+        run: |
+          find portfolio-demos/northline-studio -type f -name '*.php' -print0 | while IFS= read -r -d '' file; do
+            php -l "$file"
+          done
+
+      - name: Install official WordPress local environment tool
+        run: npm install --global @wordpress/env@latest
+
+      - name: Boot disposable WordPress staging with MySQL
+        working-directory: portfolio-demos
+        run: wp-env start
+
+      - name: Activate the demo theme and configure permalinks
+        working-directory: portfolio-demos
+        run: |
+          wp-env run cli wp option update blogname 'Northline Studio'
+          wp-env run cli wp theme activate northline-studio
+          wp-env run cli wp rewrite structure '/%postname%/'
+          wp-env run cli wp theme list --status=active
+
+      - name: Check WordPress homepage response
+        run: curl --fail --retry 8 --retry-delay 3 http://127.0.0.1:8888/ >/dev/null
+
+      - name: Install Selenium
+        run: |
+          python3 -m venv .northline-venv
+          .northline-venv/bin/pip install selenium
+
+      - name: Test rendered desktop/mobile site and CSRF protection
+        run: .northline-venv/bin/python portfolio-demos/tests/test_northline_browser.py
+
+      - name: Upload visual evidence for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: northline-wordpress-qa-evidence
+          path: artifacts/
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Stop staging environment
+        if: always()
+        working-directory: portfolio-demos
+        run: wp-env stop || true
