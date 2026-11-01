@@ -69,3 +69,18 @@ The Lovable free-plan AI agent edited the project to fix six reproduced **demo-o
 - Current code has source-level validation for catalog-derived pricing, same-session checkout/refund authorization, lesson IDs, localStorage recovery, and redirect safety. These are **implementation observations**; no new post-change Vitest/build/lint/browser run was independently executed in this follow-up.
 - A new Lovable free-only QA repair/retest request was accepted at 2026-10-31T09:48:05Z (message `umsg_01m68nqwqgf93v5hm4d3evgc11`). Its agent execution was still **running** at the time of this report update. Do not count requested work as completed. Re-check the final message, resulting commit and test logs before upgrading any status.
 - No new WordPress, WooCommerce, TalentLMS, SSO, webhook, or gateway integration was connected; all remain **PENDING/BLOCKED**. No paid service, real payment, deployment, or Upwork activity was authorized.
+
+## 2026-10-31 completed Lovable QA retest (supersedes earlier pending/failed browser checks)
+
+**Evidence source:** Lovable project `130a6b02-3447-450e-ad1e-e740c03646a9`, agent completion at 2026-10-31T09:54:55Z, current Lovable revision `89a0db195303588f678d836f6deb4aeaeaf4077a`; inspected `QA_REPORT.md`, `src/lib/qa-evidence.ts`, `src/lib/qa-checklist.ts`, and `src/routes/qa.tsx` at that revision. These are Lovable agent-executed checks, **not** a separate external CI run or a live WordPress integration.
+
+- **Type check:** `bunx tsgo --noEmit -p tsconfig.json` exit 0; **0 TypeScript errors** (previously 50). Storage record typing and 3 test typing issues were fixed.
+- **Lint:** `bunx eslint .` exit 0; **0 errors and 9 warnings** (previously 287 formatting errors).
+- **Vitest:** `bunx vitest run` exit 0; **84/84 tests passed across 6 files**. One new regression check prevents an unexecuted QA item being labeled Pass.
+- **Desktop Chromium 1280×1800 browser:** sign-in, simulated payment decline, retry→approval, duplicate checkout blocking, lesson progress persisted after reload (0%→14%), and simulated refund/revocation all passed in the agent's local browser. The earlier retry failure was a test timing issue. No page errors reported in this completed run.
+- **Mobile Chromium emulation 390×844:** 0 horizontal overflow on 9 signed-out and 3 signed-in routes; banner, menu open/navigation/close, sign-in, free simulated checkout and lesson progress (0%→25%) passed. This is **viewport emulation, not a physical device test**.
+- **/qa evidence display:** 18/20 demo checks labeled Pass, 2/20 Unverified (screen reader/keyboard-only audit and real phones/Safari/Firefox). Real integration checks: **0/19 Pass**. The 18/20 figure counts evidence entries, not a probability of production readiness.
+- **Production build:** `vite build` **not independently executed** in that Lovable agent session. Lovable metadata reports the project scaffold `ready` and preview URL exists, but this is not equivalent to a verified production build.
+- **Limitations:** browser-local simulated identities/passwords are not production authentication; no real gateway charges, TalentLMS API, WooCommerce transaction, WordPress plugin, SSO or signed webhooks were tested. These remain **BLOCKED/PENDING**.
+
+**Next run:** On 2026-11-01T09:57:22Z a further FREE-only Lovable QA request was accepted to check build evidence and keyboard/accessibility gaps. **No result from that request is counted here until its agent response and any changed revision are verified.** No paid plan, deployment, external connection, payment, Upwork Connects, proposal or client message was authorized.
