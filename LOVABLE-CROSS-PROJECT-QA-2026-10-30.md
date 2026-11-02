@@ -84,3 +84,14 @@ The Lovable free-plan AI agent edited the project to fix six reproduced **demo-o
 - **Limitations:** browser-local simulated identities/passwords are not production authentication; no real gateway charges, TalentLMS API, WooCommerce transaction, WordPress plugin, SSO or signed webhooks were tested. These remain **BLOCKED/PENDING**.
 
 **Next run:** On 2026-11-01T09:57:22Z a further FREE-only Lovable QA request was accepted to check build evidence and keyboard/accessibility gaps. **No result from that request is counted here until its agent response and any changed revision are verified.** No paid plan, deployment, external connection, payment, Upwork Connects, proposal or client message was authorized.
+
+## 2026-11-02 Lovable demo-only QA: mobile defects corrected
+
+**Source:** Lovable project `130a6b02-3447-450e-ad1e-e740c03646a9`, revision `ab3017585bc641309c730855211f3b04cac4eaf4`, agent completed 2026-11-02. Reviewed the Lovable project's `QA_REPORT.md` and `src/lib/qa-evidence.ts` at that revision. **These tests were executed by the Lovable agent in its free sandbox, not by GitHub CI and not on a real WordPress/TalentLMS connection.**
+
+- **Two reproduced mobile layout defects fixed:** at 390px the signed-in dashboard orders table expanded the document to 543px and obstructed the simulated refund button; checkout confirmation expanded to 454px because of long order identifiers. After changes, tables scroll within their container and identifiers truncate in the visual display. Desktop 1280px layouts also checked.
+- **After-fix checks:** `bunx tsgo --noEmit -p tsconfig.json` exit 0, 0 errors; `bunx eslint .` exit 0, 0 errors/9 warnings; `bunx vitest run` exit 0, 84/84 tests across 6 files.
+- **Browser QA:** 390×844 headless Chromium touch emulation, reported 68/68 checks passing and 0 page errors. axe-core: 0 violations across 14 page views; 14/14 no horizontal overflow after fixes; keyboard-only 16/16; signup, catalog, simulated checkout decline/retry/duplicate guard/free enrollment, progress persistence, refund/revocation and account-boundary negative cases exercised. This is **emulation, not real phone or screen-reader testing**.
+- **Build:** platform automatic preview log reported `build OK` at 09:31 and 09:32 UTC. A standalone production `bun run build` was **not** executed and remains **UNVERIFIED**. Do not infer production readiness from preview status.
+- **Evidence:** Lovable `QA_REPORT.md` and `/qa` now show 23/25 demo evidence entries Pass; two remain Unverified (screen readers and real phones/Safari/Firefox). Real WordPress/WooCommerce/TalentLMS/SSO/gateway/webhook checks remain **0/19 Pass, BLOCKED/PENDING**. Browser-local demo authentication is not production authentication.
+- **Cost and controls:** 5.00 free daily credits at start, 1.30 remaining at finish per Lovable agent. No purchase, upgrade, deployment, real payment, client contact, proposal or Upwork Connects use.
